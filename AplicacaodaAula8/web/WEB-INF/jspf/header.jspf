@@ -1,0 +1,55 @@
+<%-- any content can be specified here e.g.: --%>
+<%@page import="java.util.ArrayList"%>
+<%@ page pageEncoding="UTF-8" %>
+<h2>Lucas APP</h2>
+<%
+    if(request.getParameter("authLogin")!=null){
+        String userName = request.getParameter("authUsername");
+        session.setAttribute("authUsername", userName);
+        //Rotina que gera os números aleatórios
+        ArrayList<Integer> headerNumbers = new ArrayList<>();
+        while(headerNumbers.size()<6){
+            int n = ((int)(61*Math.random()))+1;
+            if(!headerNumbers.contains(n)){
+                headerNumbers.add(n);
+            }
+        }
+        session.setAttribute("authNumbers", headerNumbers);
+        //Rotina que adiciona o userName numa lista de sessões
+        if(application.getAttribute("sessionList")==null){
+            ArrayList<String> headerSessionList = new ArrayList<>();
+            headerSessionList.add(userName);
+            application.setAttribute("sessionList", headerSessionList);
+        }else{
+            ArrayList<String> headerSessionList = (ArrayList)application.getAttribute("sessionList");
+            headerSessionList.add(userName);
+            application.setAttribute("sessionList", headerSessionList);
+        }
+        response.sendRedirect(request.getRequestURI());
+    }else if(request.getParameter("authLogout")!=null){
+        //Remove o userName da lista de sessões
+        if(application.getAttribute("sessionList")!=null){
+            ArrayList<String> headerSessionList = (ArrayList)application.getAttribute("sessionList");
+            headerSessionList.remove(session.getAttribute("authUsername"));
+            application.setAttribute("sessionList", headerSessionList);
+        }
+        session.removeAttribute("authUsername");
+        session.removeAttribute("authNumbers");
+        response.sendRedirect(request.getRequestURI());
+    }
+    String authUserName = (String) session.getAttribute("authUsername");
+%>
+
+<form method="post">
+    <a href="index.jsp">Início</a>  
+    <a href="lucas.jsp">Lucas Silva</a> 
+    <a href="megaSena.jsp">Dica MegaSena</a> 
+    <%if(authUserName==null ){%>
+        <input type="text" name="authUsername"/>
+        <input type="submit" name="authLogin" value="LOGIN"/>
+    <%}else{%>
+        Bem vindo, <%= authUserName %>
+        <input type="submit" name="authLogout" value="LOGOUT"/>
+    <%}%>
+</form>
+<hr/>
